@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pulse — You're not alone</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200;0,9..144,300;0,9..144,400;1,9..144,200;1,9..144,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg:       #080A10;
+  --surface:  #10131C;
+  --s2:       #181C28;
+  --border:   rgba(255,255,255,0.06);
+  --gold:     #C8A97E;
+  --gold2:    #E8C88A;
+  --teal:     #7EB8C8;
+  --text:     #E8E4DC;
+  --muted:    #6B7280;
+  --muted2:   #9CA3AF;
+  --cream:    #F5F0E8;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ── CUSTOM CURSOR ─────────────────────────── */
+.cursor {
+  position: fixed;
+  width: 10px; height: 10px;
+  background: var(--gold);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: transform 0.1s, width 0.3s, height 0.3s, opacity 0.3s;
+  mix-blend-mode: screen;
+}
+.cursor-ring {
+  position: fixed;
+  width: 36px; height: 36px;
+  border: 1px solid rgba(200,169,126,0.4);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: transform 0.18s ease, width 0.3s, height 0.3s;
+}
+
+/* ── NOISE GRAIN OVERLAY ───────────────────── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.35;
+}
+
+/* ── NAV ───────────────────────────────────── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 22px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(to bottom, rgba(8,10,16,0.95), transparent);
+  backdrop-filter: blur(2px);
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Fraunces', serif;
+  font-size: 22px;
+  font-weight: 300;
+  color: var(--gold);
+  letter-spacing: -0.3px;
+}
+
+.pulse-dot {
+  width: 8px; height: 8px;
+  background: var(--gold);
+  border-radius: 50%;
+  box-shadow: 0 0 14px var(--gold);
+  animation: breathe 2.5s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%,100% { transform: scale(1); opacity: 1; box-shadow: 0 0 14px var(--gold); }
+  50% { transform: scale(1.5); opacity: 0.5; box-shadow: 0 0 24px var(--gold); }
+}
+
+.nav-cta {
+  background: transparent;
+  border: 1px solid rgba(200,169,126,0.35);
+  color: var(--gold);
+  padding: 9px 22px;
+  border-radius: 100px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  cursor: none;
+  transition: all 0.25s;
+  text-decoration: none;
+}
+.nav-cta:hover {
+  background: rgba(200,169,126,0.1);
+  border-color: var(--gold);
+}
+
+/* ── HERO ──────────────────────────────────── */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 120px 24px 80px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ambient glows */
+.glow-1 {
+  position: absolute;
+  top: -20%; left: -10%;
+  width: 60%; height: 70%;
+  background: radial-gradient(ellipse, rgba(200,169,126,0.07) 0%, transparent 65%);
+  pointer-events: none;
+  animation: drift1 12s ease-in-out infinite;
+}
+.glow-2 {
+  position: absolute;
+  bottom: -10%; right: -5%;
+  width: 55%; height: 60%;
+  background: radial-gradient(ellipse, rgba(126,184,200,0.06) 0%, transparent 65%);
+  pointer-events: none;
+  animation: drift2 15s ease-in-out infinite;
+}
+
+@keyframes drift1 {
+  0%,100% { transform: translate(0,0) scale(1); }
+  50% { transform: translate(3%,4%) scale(1.05); }
+}
+@keyframes drift2 {
+  0%,100% { transform: translate(0,0) scale(1); }
+  50% { transform: translate(-3%,-3%) scale(1.08); }
+}
+
+.hero-eyebrow {
+  font-size: 11px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 28px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 0.2s forwards;
+}
+
+.hero-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 200;
+  font-size: clamp(52px, 8vw, 96px);
+  line-height: 1.05;
+  letter-spacing: -2px;
+  color: var(--text);
+  max-width: 900px;
+  opacity: 0;
+  animation: fadeUp 0.9s ease 0.35s forwards;
+}
+
+.hero-title em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+.hero-sub {
+  margin-top: 28px;
+  font-size: 18px;
+  color: var(--muted2);
+  max-width: 520px;
+  line-height: 1.7;
+  font-weight: 300;
+  opacity: 0;
+  animation: fadeUp 0.9s ease 0.5s forwards;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── WAITLIST FORM ─────────────────────────── */
+.waitlist-form {
+  margin-top: 48px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  opacity: 0;
+  animation: fadeUp 0.9s ease 0.65s forwards;
+}
+
+.waitlist-input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 15px 26px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--text);
+  outline: none;
+  width: 300px;
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+.waitlist-input::placeholder { color: var(--muted); }
+.waitlist-input:focus {
+  border-color: rgba(200,169,126,0.4);
+  box-shadow: 0 0 0 3px rgba(200,169,126,0.08);
+}
+
+.waitlist-btn {
+  background: var(--gold);
+  border: none;
+  border-radius: 100px;
+  padding: 15px 30px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: #080A10;
+  cursor: none;
+  transition: all 0.25s;
+  white-space: nowrap;
+}
+.waitlist-btn:hover {
+  background: var(--gold2);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 28px rgba(200,169,126,0.3);
+}
+
+.waitlist-note {
+  width: 100%;
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 12px;
+}
+
+.success-msg {
+  display: none;
+  background: rgba(126,200,160,0.1);
+  border: 1px solid rgba(126,200,160,0.25);
+  border-radius: 100px;
+  padding: 14px 28px;
+  color: #7EC8A0;
+  font-size: 14px;
+  animation: fadeUp 0.5s ease forwards;
+}
+
+/* ── STATS BAR ─────────────────────────────── */
+.stats-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 60px;
+  padding: 40px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin: 80px 48px 0;
+  flex-wrap: wrap;
+  gap: 40px;
+  opacity: 0;
+  animation: fadeUp 1s ease 0.9s forwards;
+}
+
+.stat-item { text-align: center; }
+.stat-val {
+  font-family: 'Fraunces', serif;
+  font-size: 42px;
+  font-weight: 200;
+  color: var(--gold);
+  line-height: 1;
+  letter-spacing: -1px;
+}
+.stat-label {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+  letter-spacing: 0.5px;
+}
+.stat-divider {
+  width: 1px; height: 48px;
+  background: var(--border);
+}
+
+/* ── HOW IT WORKS ──────────────────────────── */
+.section {
+  padding: 120px 48px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-label {
+  font-size: 11px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(36px, 5vw, 58px);
+  font-weight: 200;
+  line-height: 1.15;
+  letter-spacing: -1px;
+  max-width: 680px;
+}
+
+.section-title em { font-style: italic; color: var(--gold); }
+
+.steps {
+  margin-top: 72px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+}
+
+.step {
+  background: var(--surface);
+  padding: 40px 32px;
+  position: relative;
+  transition: background 0.3s;
+}
+.step:first-child { border-radius: 16px 0 0 16px; }
+.step:last-child  { border-radius: 0 16px 16px 0; }
+.step:hover { background: var(--s2); }
+
+.step-num {
+  font-family: 'Fraunces', serif;
+  font-size: 52px;
+  font-weight: 200;
+  color: rgba(200,169,126,0.2);
+  line-height: 1;
+  margin-bottom: 24px;
+}
+
+.step-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+.step-body {
+  font-size: 14px;
+  color: var(--muted2);
+  line-height: 1.7;
+}
+
+.step-accent {
+  width: 32px; height: 2px;
+  background: var(--gold);
+  margin-bottom: 20px;
+  border-radius: 2px;
+}
+
+/* ── FEATURES GRID ─────────────────────────── */
+.features-grid {
+  margin-top: 72px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+}
+
+.feature-card {
+  background: var(--surface);
+  padding: 48px 44px;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.3s;
+}
+.feature-card:nth-child(1) { border-radius: 16px 0 0 0; }
+.feature-card:nth-child(2) { border-radius: 0 16px 0 0; }
+.feature-card:nth-child(3) { border-radius: 0 0 0 16px; }
+.feature-card:nth-child(4) { border-radius: 0 0 16px 0; }
+.feature-card:hover { background: var(--s2); }
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px; height: 100%;
+  background: linear-gradient(to bottom, var(--gold), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.feature-card:hover::before { opacity: 1; }
+
+.feature-icon {
+  font-size: 28px;
+  margin-bottom: 20px;
+}
+
+.feature-title {
+  font-family: 'Fraunces', serif;
+  font-size: 22px;
+  font-weight: 300;
+  color: var(--text);
+  margin-bottom: 14px;
+  letter-spacing: -0.3px;
+}
+
+.feature-body {
+  font-size: 14px;
+  color: var(--muted2);
+  line-height: 1.75;
+}
+
+.feature-tag {
+  display: inline-block;
+  margin-top: 20px;
+  background: rgba(200,169,126,0.08);
+  border: 1px solid rgba(200,169,126,0.18);
+  color: var(--gold);
+  font-size: 11px;
+  padding: 5px 12px;
+  border-radius: 100px;
+  letter-spacing: 0.5px;
+}
+
+/* ── THE DIFFERENCE ────────────────────────── */
+.difference {
+  padding: 120px 48px;
+  background: var(--surface);
+  position: relative;
+  overflow: hidden;
+}
+
+.difference::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px; height: 400px;
+  background: radial-gradient(ellipse, rgba(126,184,200,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.diff-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.diff-quote {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 200;
+  font-style: italic;
+  line-height: 1.3;
+  letter-spacing: -0.5px;
+  color: var(--text);
+}
+
+.diff-quote span { color: var(--gold); }
+
+.diff-points { display: flex; flex-direction: column; gap: 28px; }
+
+.diff-point {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+.diff-dot {
+  width: 6px; height: 6px;
+  background: var(--teal);
+  border-radius: 50%;
+  margin-top: 7px;
+  flex-shrink: 0;
+}
+
+.diff-point-text { font-size: 15px; color: var(--muted2); line-height: 1.65; }
+.diff-point-text strong { color: var(--text); font-weight: 500; }
+
+/* ── TESTIMONIAL ───────────────────────────── */
+.testimonial-section {
+  padding: 120px 48px;
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.testimonial-quote {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(22px, 3.5vw, 38px);
+  font-weight: 200;
+  font-style: italic;
+  line-height: 1.5;
+  letter-spacing: -0.5px;
+  color: var(--text);
+  max-width: 780px;
+  margin: 0 auto 32px;
+}
+
+.testimonial-quote em { color: var(--gold); font-style: normal; }
+
+.testimonial-author {
+  font-size: 13px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* ── BOTTOM CTA ────────────────────────────── */
+.bottom-cta {
+  padding: 140px 48px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.bottom-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(200,169,126,0.06) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.bottom-title {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(42px, 7vw, 80px);
+  font-weight: 200;
+  line-height: 1.1;
+  letter-spacing: -2px;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+.bottom-title em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+.bottom-sub {
+  font-size: 17px;
+  color: var(--muted2);
+  margin-bottom: 48px;
+  font-weight: 300;
+}
+
+/* ── FOOTER ────────────────────────────────── */
+footer {
+  padding: 36px 48px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.footer-logo {
+  font-family: 'Fraunces', serif;
+  font-size: 18px;
+  font-weight: 300;
+  color: var(--gold);
+}
+
+.footer-links {
+  display: flex;
+  gap: 28px;
+}
+
+.footer-links a {
+  font-size: 13px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-links a:hover { color: var(--text); }
+
+.footer-copy {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ── SCROLL REVEAL ─────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── RESPONSIVE ────────────────────────────── */
+@media (max-width: 900px) {
+  nav { padding: 18px 24px; }
+  .section { padding: 80px 24px; }
+  .steps { grid-template-columns: 1fr 1fr; }
+  .step:first-child { border-radius: 16px 0 0 0; }
+  .step:nth-child(2) { border-radius: 0 16px 0 0; }
+  .step:nth-child(3) { border-radius: 0 0 0 16px; }
+  .step:last-child  { border-radius: 0 0 16px 0; }
+  .features-grid { grid-template-columns: 1fr; }
+  .feature-card:nth-child(1) { border-radius: 16px 16px 0 0; }
+  .feature-card:nth-child(2) { border-radius: 0; }
+  .feature-card:nth-child(3) { border-radius: 0; }
+  .feature-card:nth-child(4) { border-radius: 0 0 16px 16px; }
+  .diff-inner { grid-template-columns: 1fr; gap: 48px; }
+  .stats-bar { margin: 80px 24px 0; gap: 24px; }
+  .stat-divider { display: none; }
+  .bottom-cta, .difference { padding: 80px 24px; }
+  footer { padding: 28px 24px; }
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="pulse-dot"></div>
+    Pulse
+  </div>
+  <a href="#waitlist" class="nav-cta">Join Waitlist</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="glow-1"></div>
+  <div class="glow-2"></div>
+
+  <p class="hero-eyebrow">Coming soon · Free to start</p>
+
+  <h1 class="hero-title">
+    The app that knows you're<br>lonely <em>before you do.</em>
+  </h1>
+
+  <p class="hero-sub">
+    Pulse quietly detects isolation signals and nudges you toward
+    real human connection — no mood logging, no journaling, no effort.
+  </p>
+
+  <div class="waitlist-form" id="waitlist">
+    <input
+      type="email"
+      class="waitlist-input"
+      id="emailInput"
+      placeholder="your@email.com"
+    />
+    <button class="waitlist-btn" onclick="joinWaitlist()">
+      Get Early Access
+    </button>
+    <p class="waitlist-note">No spam. Just your spot in line. 🌱</p>
+    <div class="success-msg" id="successMsg">
+      ✓ You're on the list. We'll be in touch soon.
+    </div>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<div class="stats-bar reveal">
+  <div class="stat-item">
+    <div class="stat-val">61%</div>
+    <div class="stat-label">of adults feel lonely</div>
+  </div>
+  <div class="stat-divider"></div>
+  <div class="stat-item">
+    <div class="stat-val">220M</div>
+    <div class="stat-label">AI companion downloads</div>
+  </div>
+  <div class="stat-divider"></div>
+  <div class="stat-item">
+    <div class="stat-val">0</div>
+    <div class="stat-label">apps that nudge real connection</div>
+  </div>
+  <div class="stat-divider"></div>
+  <div class="stat-item">
+    <div class="stat-val">2am</div>
+    <div class="stat-label">when you need this most</div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="section reveal">
+  <p class="section-label">How it works</p>
+  <h2 class="section-title">Zero effort.<br><em>Real results.</em></h2>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-accent"></div>
+      <div class="step-title">Pulse senses</div>
+      <div class="step-body">Phone patterns analyzed entirely on-device. Screen time, message frequency, late-night activity. Nothing leaves your phone.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-accent"></div>
+      <div class="step-title">Pulse detects</div>
+      <div class="step-body">An isolation score is computed privately. When signals cross a threshold, Pulse knows something's off — before you do.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-accent" style="background: var(--teal)"></div>
+      <div class="step-title">Pulse nudges</div>
+      <div class="step-body">A warm, specific suggestion appears. Not "call a friend" — <em style="color: var(--gold)">"You haven't messaged Maya in 3 weeks. Send her a meme?"</em></div>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <div class="step-accent" style="background: var(--teal)"></div>
+      <div class="step-title">You connect</div>
+      <div class="step-body">A tiny action. A real moment. Pulse learns what works for you and gets better over time.</div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<div class="section reveal" style="padding-top: 0;">
+  <p class="section-label">Features</p>
+  <h2 class="section-title">Everything you need.<br><em>Nothing you don't.</em></h2>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">📡</div>
+      <div class="feature-title">Passive Signal Engine</div>
+      <div class="feature-body">Detects loneliness signals from everyday phone usage — no check-ins, no forms, no effort from you. All processing stays on your device.</div>
+      <div class="feature-tag">Privacy first</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💬</div>
+      <div class="feature-title">AI Companion</div>
+      <div class="feature-body">A warm presence when you need it at 2am. Pulse listens, doesn't lecture — and gently nudges you toward real people, not dependency on an AI.</div>
+      <div class="feature-tag">Powered by Claude</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">✦</div>
+      <div class="feature-title">Micro-Nudge Engine</div>
+      <div class="feature-body">Specific, low-pressure suggestions based on your actual life. "React to their story" is easier than "make a phone call." Pulse knows the difference.</div>
+      <div class="feature-tag">Personalized</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📍</div>
+      <div class="feature-title">Micro-Event Matching</div>
+      <div class="feature-body">Nearby low-pressure events — coffee walks, reading hours, park meetups — matched to your emotional vibe. No agenda required.</div>
+      <div class="feature-tag">Real-world connection</div>
+    </div>
+  </div>
+</div>
+
+<!-- THE DIFFERENCE -->
+<div class="difference">
+  <div class="diff-inner">
+    <div class="diff-quote reveal">
+      "We're not building another AI friend.<br>We're building the <span>bridge back</span> to real ones."
+    </div>
+    <div class="diff-points reveal">
+      <div class="diff-point">
+        <div class="diff-dot"></div>
+        <div class="diff-point-text"><strong>Replika, Woebot, Character.AI</strong> wait for you to open them. Pulse comes to you — quietly, without surveillance.</div>
+      </div>
+      <div class="diff-point">
+        <div class="diff-dot"></div>
+        <div class="diff-point-text"><strong>Other apps risk dependency.</strong> Pulse is designed to make itself unnecessary. Every feature points toward real humans.</div>
+      </div>
+      <div class="diff-point">
+        <div class="diff-dot"></div>
+        <div class="diff-point-text"><strong>29 peer-reviewed studies</strong> confirm passive sensing can detect loneliness. We're the first consumer app to use it.</div>
+      </div>
+      <div class="diff-point">
+        <div class="diff-dot"></div>
+        <div class="diff-point-text"><strong>100% on-device processing.</strong> Your isolation score is never stored on our servers. Your privacy is non-negotiable.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TESTIMONIAL -->
+<div class="testimonial-section reveal">
+  <div class="testimonial-quote">
+    "I didn't realize how isolated I'd become until a small nudge reminded me to text someone. That text turned into a phone call. That phone call changed my week."
+  </div>
+  <div class="testimonial-author">Beta tester · Chicago, IL</div>
+</div>
+
+<!-- BOTTOM CTA -->
+<div class="bottom-cta reveal">
+  <h2 class="bottom-title">You deserve<br><em>real connection.</em></h2>
+  <p class="bottom-sub">Join thousands on the waitlist. Be first to try Pulse.</p>
+
+  <div class="waitlist-form" style="opacity: 1; animation: none;">
+    <input
+      type="email"
+      class="waitlist-input"
+      id="emailInput2"
+      placeholder="your@email.com"
+    />
+    <button class="waitlist-btn" onclick="joinWaitlist2()">
+      Get Early Access
+    </button>
+    <p class="waitlist-note">Free forever tier available. No credit card needed.</p>
+    <div class="success-msg" id="successMsg2">
+      ✓ You're on the list. We'll be in touch soon.
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Pulse</div>
+  <div class="footer-links">
+    <a href="#">Privacy</a>
+    <a href="#">About</a>
+    <a href="#">Contact</a>
+    <a href="#">Press</a>
+  </div>
+  <div class="footer-copy">© 2026 Pulse. Made with care.</div>
+</footer>
+
+<script>
+// Custom cursor
+const cursor = document.getElementById('cursor');
+const ring   = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx + 'px';
+  cursor.style.top  = my + 'px';
+});
+
+function animRing() {
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  ring.style.left = rx + 'px';
+  ring.style.top  = ry + 'px';
+  requestAnimationFrame(animRing);
+}
+animRing();
+
+// Cursor grow on hover
+document.querySelectorAll('a, button, input').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cursor.style.width = '18px';
+    cursor.style.height = '18px';
+    ring.style.width = '52px';
+    ring.style.height = '52px';
+  });
+  el.addEventListener('mouseleave', () => {
+    cursor.style.width = '10px';
+    cursor.style.height = '10px';
+    ring.style.width = '36px';
+    ring.style.height = '36px';
+  });
+});
+
+// Scroll reveal
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Waitlist
+function handleJoin(inputId, msgId) {
+  const input = document.getElementById(inputId);
+  const msg   = document.getElementById(msgId);
+  const email = input.value.trim();
+  if (!email || !email.includes('@')) {
+    input.style.borderColor = 'rgba(232,126,126,0.5)';
+    input.focus();
+    setTimeout(() => input.style.borderColor = '', 1500);
+    return;
+  }
+  // In production: POST to your API / Mailchimp / ConvertKit
+  console.log('Waitlist signup:', email);
+  input.parentNode.querySelectorAll('input, button').forEach(el => el.style.display = 'none');
+  msg.style.display = 'block';
+}
+
+function joinWaitlist()  { handleJoin('emailInput',  'successMsg');  }
+function joinWaitlist2() { handleJoin('emailInput2', 'successMsg2'); }
+
+// Animated counter
+function animateCount(el, target, suffix = '') {
+  let start = 0;
+  const duration = 1800;
+  const startTime = performance.now();
+  function step(now) {
+    const p = Math.min((now - startTime) / duration, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    const val = Math.round(ease * target);
+    el.textContent = val + suffix;
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+// Trigger counters when stats bar is visible
+const statsBar = document.querySelector('.stats-bar');
+const statsObserver = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting) {
+    animateCount(document.querySelectorAll('.stat-val')[0], 61, '%');
+    animateCount(document.querySelectorAll('.stat-val')[1], 220, 'M');
+    statsObserver.disconnect();
+  }
+}, { threshold: 0.5 });
+statsObserver.observe(statsBar);
+</script>
+</body>
+</html>
