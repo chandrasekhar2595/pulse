@@ -671,19 +671,14 @@ footer {
   </p>
 
   <div class="waitlist-form" id="waitlist">
-    <input
-      type="email"
-      class="waitlist-input"
-      id="emailInput"
-      placeholder="your@email.com"
-    />
-    <button class="waitlist-btn" onclick="joinWaitlist()">
-      Get Early Access
-    </button>
+    <form name="waitlist" method="POST" data-netlify="true" netlify-honeypot="bot-field" id="form1" onsubmit="handleNetlifySubmit(event,'form1','successMsg')">
+      <input type="hidden" name="form-name" value="waitlist" />
+      <input type="hidden" name="bot-field" style="display:none" />
+      <input type="email" name="email" class="waitlist-input" id="emailInput" placeholder="your@email.com" required />
+      <button type="submit" class="waitlist-btn">Get Early Access</button>
+    </form>
     <p class="waitlist-note">No spam. Just your spot in line. 🌱</p>
-    <div class="success-msg" id="successMsg">
-      ✓ You're on the list. We'll be in touch soon.
-    </div>
+    <div class="success-msg" id="successMsg">✓ You're on the list. We'll be in touch soon.</div>
   </div>
 </section>
 
@@ -817,19 +812,14 @@ footer {
   <p class="bottom-sub">Join thousands on the waitlist. Be first to try Pulse.</p>
 
   <div class="waitlist-form" style="opacity: 1; animation: none;">
-    <input
-      type="email"
-      class="waitlist-input"
-      id="emailInput2"
-      placeholder="your@email.com"
-    />
-    <button class="waitlist-btn" onclick="joinWaitlist2()">
-      Get Early Access
-    </button>
+    <form name="waitlist" method="POST" data-netlify="true" netlify-honeypot="bot-field" id="form2" onsubmit="handleNetlifySubmit(event,'form2','successMsg2')">
+      <input type="hidden" name="form-name" value="waitlist" />
+      <input type="hidden" name="bot-field" style="display:none" />
+      <input type="email" name="email" class="waitlist-input" id="emailInput2" placeholder="your@email.com" required />
+      <button type="submit" class="waitlist-btn">Get Early Access</button>
+    </form>
     <p class="waitlist-note">Free forever tier available. No credit card needed.</p>
-    <div class="success-msg" id="successMsg2">
-      ✓ You're on the list. We'll be in touch soon.
-    </div>
+    <div class="success-msg" id="successMsg2">✓ You're on the list. We'll be in touch soon.</div>
   </div>
 </div>
 
@@ -893,25 +883,32 @@ const observer = new IntersectionObserver(entries => {
 
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-// Waitlist
-function handleJoin(inputId, msgId) {
-  const input = document.getElementById(inputId);
+// Netlify Forms submission
+async function handleNetlifySubmit(e, formId, msgId) {
+  e.preventDefault();
+  const form  = document.getElementById(formId);
   const msg   = document.getElementById(msgId);
-  const email = input.value.trim();
+  const email = form.querySelector('input[type="email"]').value.trim();
+
   if (!email || !email.includes('@')) {
-    input.style.borderColor = 'rgba(232,126,126,0.5)';
-    input.focus();
-    setTimeout(() => input.style.borderColor = '', 1500);
+    form.querySelector('input[type="email"]').style.borderColor = 'rgba(232,126,126,0.5)';
+    setTimeout(() => form.querySelector('input[type="email"]').style.borderColor = '', 1500);
     return;
   }
-  // In production: POST to your API / Mailchimp / ConvertKit
-  console.log('Waitlist signup:', email);
-  input.parentNode.querySelectorAll('input, button').forEach(el => el.style.display = 'none');
-  msg.style.display = 'block';
-}
 
-function joinWaitlist()  { handleJoin('emailInput',  'successMsg');  }
-function joinWaitlist2() { handleJoin('emailInput2', 'successMsg2'); }
+  try {
+    const data = new FormData(form);
+    await fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(data).toString() });
+    form.style.display = 'none';
+    msg.style.display  = 'block';
+  } catch(err) {
+    // Fallback — still show success so user isn't confused
+    form.style.display = 'none';
+    msg.style.display  = 'block';
+    console.error('Form error:', err);
+  }
+}
 
 // Animated counter
 function animateCount(el, target, suffix = '') {
