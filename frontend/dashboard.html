@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pulse — Employer Wellness Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg:       #F7F5F2;
+  --surface:  #FFFFFF;
+  --surface2: #F0EDE8;
+  --border:   #E8E2D9;
+  --gold:     #B8935A;
+  --gold-l:   #F5EDD8;
+  --teal:     #2E7D8C;
+  --teal-l:   #E0F0F3;
+  --green:    #2D7A5A;
+  --green-l:  #E0F2E9;
+  --red:      #C0392B;
+  --red-l:    #FDECEA;
+  --amber:    #B8760A;
+  --amber-l:  #FDF3E0;
+  --text:     #1A1A2E;
+  --text2:    #4A4A6A;
+  --muted:    #8A8AAA;
+  --shadow:   rgba(0,0,0,0.06);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  min-height: 100vh;
+}
+
+/* ── SIDEBAR ─────────────────────────── */
+.sidebar {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: 240px;
+  background: var(--text);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+}
+
+.sidebar-logo {
+  padding: 28px 24px 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.logo-mark {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.logo-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #C8A97E;
+  box-shadow: 0 0 10px rgba(200,169,126,0.6);
+  animation: breathe 2.5s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%,100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.5); opacity: 0.5; }
+}
+
+.logo-text {
+  font-family: 'Fraunces', serif;
+  font-size: 20px;
+  color: #C8A97E;
+  font-weight: 300;
+}
+
+.logo-sub {
+  font-size: 10px;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-left: 16px;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 20px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nav-section {
+  font-size: 9px;
+  color: rgba(255,255,255,0.25);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 12px 12px 6px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+  color: rgba(255,255,255,0.55);
+  font-size: 13.5px;
+}
+
+.nav-item:hover   { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.85); }
+.nav-item.active  { background: rgba(200,169,126,0.15); color: #C8A97E; }
+.nav-icon         { font-size: 15px; width: 20px; text-align: center; }
+
+.sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.company-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+}
+
+.company-avatar {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #C8A97E, #8B6A3E);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600; color: white;
+}
+
+.company-name  { font-size: 12px; color: rgba(255,255,255,0.7); font-weight: 400; }
+.company-plan  { font-size: 10px; color: rgba(255,255,255,0.3); }
+
+/* ── MAIN ───────────────────────────── */
+.main {
+  margin-left: 240px;
+  min-height: 100vh;
+}
+
+/* ── TOPBAR ─────────────────────────── */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.topbar-left h1 {
+  font-family: 'Fraunces', serif;
+  font-size: 20px;
+  font-weight: 300;
+  color: var(--text);
+  letter-spacing: -0.3px;
+}
+
+.topbar-left p {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 1px;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.period-selector {
+  display: flex;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.period-btn {
+  padding: 6px 14px;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.2s;
+}
+
+.period-btn.active {
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 500;
+  box-shadow: 0 1px 3px var(--shadow);
+}
+
+.export-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--gold);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.export-btn:hover { background: #A07840; transform: translateY(-1px); }
+
+/* ── CONTENT ───────────────────────── */
+.content { padding: 28px 32px; }
+
+/* ── KPI CARDS ─────────────────────── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+  animation: fadeUp 0.5s ease both;
+}
+
+.kpi-card:hover { box-shadow: 0 4px 20px var(--shadow); }
+.kpi-card:nth-child(1) { animation-delay: 0.05s; }
+.kpi-card:nth-child(2) { animation-delay: 0.1s; }
+.kpi-card:nth-child(3) { animation-delay: 0.15s; }
+.kpi-card:nth-child(4) { animation-delay: 0.2s; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.kpi-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.kpi-icon {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px;
+}
+
+.kpi-badge {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 100px;
+}
+
+.kpi-val {
+  font-family: 'Fraunces', serif;
+  font-size: 38px;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -1px;
+  margin-bottom: 4px;
+}
+
+.kpi-label {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.kpi-bar-bg {
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.kpi-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── CHARTS ROW ────────────────────── */
+.charts-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px;
+  animation: fadeUp 0.5s ease 0.25s both;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.card-title {
+  font-family: 'Fraunces', serif;
+  font-size: 16px;
+  font-weight: 300;
+  color: var(--text);
+  letter-spacing: -0.2px;
+}
+
+.card-sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* ── LINE CHART ────────────────────── */
+.line-chart {
+  position: relative;
+  height: 200px;
+  margin-bottom: 16px;
+}
+
+.chart-svg { width: 100%; height: 100%; overflow: visible; }
+
+.chart-grid line { stroke: var(--border); stroke-width: 1; }
+.chart-label { font-size: 10px; fill: var(--muted); font-family: 'DM Sans', sans-serif; }
+
+.chart-area { fill: url(#areaGrad); opacity: 0.6; }
+.chart-line { fill: none; stroke: var(--gold); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.chart-line-2 { fill: none; stroke: var(--teal); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 4 3; }
+
+.chart-dot {
+  fill: var(--surface);
+  stroke: var(--gold);
+  stroke-width: 2.5;
+  transition: r 0.2s;
+  cursor: pointer;
+}
+.chart-dot:hover { r: 6; }
+
+.chart-legend {
+  display: flex;
+  gap: 20px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text2);
+}
+
+.legend-line {
+  width: 20px; height: 2px;
+  border-radius: 2px;
+}
+
+/* ── DONUT CHART ───────────────────── */
+.donut-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.donut-svg { width: 160px; height: 160px; }
+
+.donut-center {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.donut-rel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 160px; height: 160px;
+}
+
+.donut-label-val {
+  font-family: 'Fraunces', serif;
+  font-size: 28px;
+  color: var(--text);
+  font-weight: 300;
+  line-height: 1;
+}
+
+.donut-label-sub {
+  font-size: 10px;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 2px;
+}
+
+.donut-legend {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.donut-leg-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.donut-leg-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text2);
+}
+
+.donut-leg-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+}
+
+.donut-leg-val {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+/* ── DEPT TABLE ────────────────────── */
+.dept-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 24px;
+  animation: fadeUp 0.5s ease 0.35s both;
+}
+
+.dept-card .card-header {
+  padding: 20px 24px 0;
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 16px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 12px 24px;
+  text-align: left;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+td {
+  padding: 14px 24px;
+  font-size: 13.5px;
+  color: var(--text2);
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--bg); }
+
+.dept-name {
+  font-weight: 500;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dept-avatar {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+}
+
+.score-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.trend-bar {
+  width: 80px; height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.trend-fill { height: 100%; border-radius: 2px; }
+
+.change-badge {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 100px;
+}
+
+/* ── BOTTOM ROW ────────────────────── */
+.bottom-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* ── PRIVACY BANNER ────────────────── */
+.privacy-banner {
+  background: linear-gradient(135deg, #EDF7FF, #E8F4F8);
+  border: 1px solid #B8D8E8;
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+  animation: fadeUp 0.5s ease 0.1s both;
+}
+
+.privacy-icon { font-size: 22px; }
+.privacy-text { flex: 1; }
+.privacy-title { font-size: 13px; font-weight: 600; color: var(--teal); }
+.privacy-sub   { font-size: 12px; color: var(--text2); margin-top: 2px; }
+
+/* ── INSIGHTS LIST ─────────────────── */
+.insight-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.insight-item:last-child { border-bottom: none; }
+
+.insight-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.insight-text { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.insight-text strong { color: var(--text); font-weight: 500; }
+.insight-time { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+/* ── TOOLTIP ───────────────────────── */
+.tooltip {
+  position: absolute;
+  background: var(--text);
+  color: white;
+  padding: 7px 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+  z-index: 200;
+}
+
+.tooltip.visible { opacity: 1; }
+
+/* ── RESPONSIVE ────────────────────── */
+@media (max-width: 1100px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .charts-row { grid-template-columns: 1fr; }
+  .bottom-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="tooltip" id="tooltip"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-dot"></div>
+      <span class="logo-text">Pulse</span>
+    </div>
+    <div class="logo-sub">Employer Dashboard</div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section">Overview</div>
+    <div class="nav-item active"><span class="nav-icon">📊</span> Dashboard</div>
+    <div class="nav-item"><span class="nav-icon">📈</span> Trends</div>
+    <div class="nav-item"><span class="nav-icon">🏢</span> Departments</div>
+
+    <div class="nav-section">Insights</div>
+    <div class="nav-item"><span class="nav-icon">📋</span> Reports</div>
+    <div class="nav-item"><span class="nav-icon">🔔</span> Alerts</div>
+    <div class="nav-item"><span class="nav-icon">💡</span> Recommendations</div>
+
+    <div class="nav-section">Settings</div>
+    <div class="nav-item"><span class="nav-icon">👥</span> Employees</div>
+    <div class="nav-item"><span class="nav-icon">⚙️</span> Settings</div>
+    <div class="nav-item"><span class="nav-icon">🔒</span> Privacy</div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="company-pill">
+      <div class="company-avatar">AC</div>
+      <div>
+        <div class="company-name">Acme Corp</div>
+        <div class="company-plan">Enterprise Plan</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>Workforce Wellness Overview</h1>
+      <p>Anonymous · Aggregated · Updated daily</p>
+    </div>
+    <div class="topbar-right">
+      <div class="period-selector">
+        <button class="period-btn">7D</button>
+        <button class="period-btn active">30D</button>
+        <button class="period-btn">90D</button>
+        <button class="period-btn">1Y</button>
+      </div>
+      <button class="export-btn" onclick="alert('Report downloaded!')">
+        ↓ Export Report
+      </button>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- PRIVACY BANNER -->
+    <div class="privacy-banner">
+      <div class="privacy-icon">🔒</div>
+      <div class="privacy-text">
+        <div class="privacy-title">100% Anonymous · Zero Individual Data</div>
+        <div class="privacy-sub">All scores are aggregated across teams of 5+ employees. No individual can ever be identified. All signal processing happens on employee devices.</div>
+      </div>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="kpi-grid">
+
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-icon" style="background:#F5EDD8">🫀</div>
+          <span class="kpi-badge" style="background:#E0F2E9;color:#2D7A5A">↑ +8%</span>
+        </div>
+        <div class="kpi-val" style="color:#2D7A5A">72</div>
+        <div class="kpi-label">Company Connection Score</div>
+        <div class="kpi-bar-bg">
+          <div class="kpi-bar-fill" style="width:72%;background:#2D7A5A" id="bar1"></div>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-icon" style="background:#E0F0F3">👥</div>
+          <span class="kpi-badge" style="background:#E0F0F3;color:#2E7D8C">247 active</span>
+        </div>
+        <div class="kpi-val" style="color:#2E7D8C">89%</div>
+        <div class="kpi-label">Employee Participation Rate</div>
+        <div class="kpi-bar-bg">
+          <div class="kpi-bar-fill" style="width:89%;background:#2E7D8C"></div>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-icon" style="background:#FDF3E0">✦</div>
+          <span class="kpi-badge" style="background:#FDF3E0;color:#B8760A">↑ +23%</span>
+        </div>
+        <div class="kpi-val" style="color:#B8760A">1,842</div>
+        <div class="kpi-label">Nudges Taken This Month</div>
+        <div class="kpi-bar-bg">
+          <div class="kpi-bar-fill" style="width:61%;background:#B8760A"></div>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-icon" style="background:#FDECEA">⚠️</div>
+          <span class="kpi-badge" style="background:#FDECEA;color:#C0392B">↓ -3 teams</span>
+        </div>
+        <div class="kpi-val" style="color:#C0392B">4</div>
+        <div class="kpi-label">Teams Needing Attention</div>
+        <div class="kpi-bar-bg">
+          <div class="kpi-bar-fill" style="width:25%;background:#C0392B"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CHARTS ROW -->
+    <div class="charts-row">
+
+      <!-- Line Chart -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Connection Score Trend</div>
+            <div class="card-sub">Company average vs industry benchmark · Last 30 days</div>
+          </div>
+        </div>
+
+        <div class="line-chart">
+          <svg class="chart-svg" viewBox="0 0 600 200" id="lineChart">
+            <defs>
+              <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#B8935A" stop-opacity="0.2"/>
+                <stop offset="100%" stop-color="#B8935A" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <!-- Grid lines -->
+            <g class="chart-grid">
+              <line x1="0" y1="0"   x2="600" y2="0"/>
+              <line x1="0" y1="50"  x2="600" y2="50"/>
+              <line x1="0" y1="100" x2="600" y2="100"/>
+              <line x1="0" y1="150" x2="600" y2="150"/>
+              <line x1="0" y1="200" x2="600" y2="200"/>
+            </g>
+            <!-- Y labels -->
+            <text class="chart-label" x="-8" y="5"   text-anchor="end">100</text>
+            <text class="chart-label" x="-8" y="55"  text-anchor="end">75</text>
+            <text class="chart-label" x="-8" y="105" text-anchor="end">50</text>
+            <text class="chart-label" x="-8" y="155" text-anchor="end">25</text>
+            <text class="chart-label" x="-8" y="205" text-anchor="end">0</text>
+
+            <!-- Area + line (company) -->
+            <path class="chart-area" d="M0,120 C40,115 80,105 120,100 C160,95 200,90 240,82 C280,74 320,68 360,62 C400,56 440,52 480,50 C510,48 540,48 600,46 L600,200 L0,200 Z"/>
+            <path class="chart-line" d="M0,120 C40,115 80,105 120,100 C160,95 200,90 240,82 C280,74 320,68 360,62 C400,56 440,52 480,50 C510,48 540,48 600,46" id="mainLine"/>
+
+            <!-- Benchmark line -->
+            <path class="chart-line-2" d="M0,100 L600,100"/>
+            <text class="chart-label" x="608" y="103">Avg</text>
+
+            <!-- Dots -->
+            <circle class="chart-dot" cx="0"   cy="120" r="4" data-val="40" data-date="Day 1"/>
+            <circle class="chart-dot" cx="120" cy="100" r="4" data-val="50" data-date="Week 1"/>
+            <circle class="chart-dot" cx="240" cy="82"  r="4" data-val="59" data-date="Week 2"/>
+            <circle class="chart-dot" cx="360" cy="62"  r="4" data-val="69" data-date="Week 3"/>
+            <circle class="chart-dot" cx="480" cy="50"  r="4" data-val="75" data-date="Week 4"/>
+            <circle class="chart-dot" cx="600" cy="46"  r="4" data-val="77" data-date="Today"/>
+
+            <!-- X labels -->
+            <text class="chart-label" x="0"   y="218" text-anchor="middle">Mar 1</text>
+            <text class="chart-label" x="120" y="218" text-anchor="middle">Mar 8</text>
+            <text class="chart-label" x="240" y="218" text-anchor="middle">Mar 15</text>
+            <text class="chart-label" x="360" y="218" text-anchor="middle">Mar 22</text>
+            <text class="chart-label" x="480" y="218" text-anchor="middle">Mar 29</text>
+            <text class="chart-label" x="600" y="218" text-anchor="middle">Today</text>
+          </svg>
+        </div>
+
+        <div class="chart-legend">
+          <div class="legend-item">
+            <div class="legend-line" style="background:var(--gold)"></div>
+            Acme Corp
+          </div>
+          <div class="legend-item">
+            <div class="legend-line" style="background:var(--teal);opacity:0.6;border-top:2px dashed var(--teal);height:0"></div>
+            Industry avg
+          </div>
+        </div>
+      </div>
+
+      <!-- Donut Chart -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Connection Distribution</div>
+            <div class="card-sub">Employees by wellness status</div>
+          </div>
+        </div>
+
+        <div class="donut-wrap">
+          <div class="donut-rel">
+            <svg class="donut-svg" viewBox="0 0 160 160">
+              <!-- Donut segments (r=58, circumference=364.4) -->
+              <!-- Thriving: 52% = 189.5 -->
+              <circle cx="80" cy="80" r="58" fill="none" stroke="#2D7A5A" stroke-width="20"
+                stroke-dasharray="189.5 364.4" stroke-dashoffset="91" transform="rotate(-90 80 80)"/>
+              <!-- Connected: 30% = 109.3 -->
+              <circle cx="80" cy="80" r="58" fill="none" stroke="#B8935A" stroke-width="20"
+                stroke-dasharray="109.3 364.4" stroke-dashoffset="-98.5" transform="rotate(-90 80 80)"/>
+              <!-- Drifting: 13% = 47.4 -->
+              <circle cx="80" cy="80" r="58" fill="none" stroke="#B8760A" stroke-width="20"
+                stroke-dasharray="47.4 364.4" stroke-dashoffset="-207.8" transform="rotate(-90 80 80)"/>
+              <!-- At Risk: 5% = 18.2 -->
+              <circle cx="80" cy="80" r="58" fill="none" stroke="#C0392B" stroke-width="20"
+                stroke-dasharray="18.2 364.4" stroke-dashoffset="-255.2" transform="rotate(-90 80 80)"/>
+            </svg>
+            <div class="donut-center" style="position:absolute">
+              <div class="donut-label-val">247</div>
+              <div class="donut-label-sub">employees</div>
+            </div>
+          </div>
+
+          <div class="donut-legend" style="padding:0 8px">
+            <div class="donut-leg-item">
+              <div class="donut-leg-left">
+                <div class="donut-leg-dot" style="background:#2D7A5A"></div> Thriving
+              </div>
+              <div class="donut-leg-val" style="color:#2D7A5A">52% · 128</div>
+            </div>
+            <div class="donut-leg-item">
+              <div class="donut-leg-left">
+                <div class="donut-leg-dot" style="background:#B8935A"></div> Connected
+              </div>
+              <div class="donut-leg-val" style="color:#B8935A">30% · 74</div>
+            </div>
+            <div class="donut-leg-item">
+              <div class="donut-leg-left">
+                <div class="donut-leg-dot" style="background:#B8760A"></div> Drifting
+              </div>
+              <div class="donut-leg-val" style="color:#B8760A">13% · 32</div>
+            </div>
+            <div class="donut-leg-item">
+              <div class="donut-leg-left">
+                <div class="donut-leg-dot" style="background:#C0392B"></div> At Risk
+              </div>
+              <div class="donut-leg-val" style="color:#C0392B">5% · 13</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- DEPT TABLE -->
+    <div class="dept-card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Department vs Department</div>
+          <div class="card-sub">Anonymized team wellness comparison · Minimum 5 employees per team</div>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Department</th>
+            <th>Employees</th>
+            <th>Connection Score</th>
+            <th>30-Day Trend</th>
+            <th>Change</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="dept-name"><div class="dept-avatar" style="background:#E0F2E9">🧑‍💻</div> Engineering</div></td>
+            <td>58</td>
+            <td><span class="score-pill" style="background:#E0F2E9;color:#2D7A5A">● 81</span></td>
+            <td><div class="trend-bar"><div class="trend-fill" style="width:81%;background:#2D7A5A"></div></div></td>
+            <td><span class="change-badge" style="background:#E0F2E9;color:#2D7A5A">↑ +12%</span></td>
+            <td><span class="score-pill" style="background:#E0F2E9;color:#2D7A5A">Thriving</span></td>
+          </tr>
+          <tr>
+            <td><div class="dept-name"><div class="dept-avatar" style="background:#F5EDD8">📣</div> Marketing</div></td>
+            <td>31</td>
+            <td><span class="score-pill" style="background:#F5EDD8;color:#B8935A">● 74</span></td>
+            <td><div class="trend-bar"><div class="trend-fill" style="width:74%;background:#B8935A"></div></div></td>
+            <td><span class="change-badge" style="background:#F5EDD8;color:#B8935A">↑ +6%</span></td>
+            <td><span class="score-pill" style="background:#F5EDD8;color:#B8935A">Connected</span></td>
+          </tr>
+          <tr>
+            <td><div class="dept-name"><div class="dept-avatar" style="background:#E0F2E9">💰</div> Sales</div></td>
+            <td>44</td>
+            <td><span class="score-pill" style="background:#E0F2E9;color:#2D7A5A">● 78</span></td>
+            <td><div class="trend-bar"><div class="trend-fill" style="width:78%;background:#2D7A5A"></div></div></td>
+            <td><span class="change-badge" style="background:#E0F2E9;color:#2D7A5A">↑ +9%</span></td>
+            <td><span class="score-pill" style="background:#E0F2E9;color:#2D7A5A">Thriving</span></td>
+          </tr>
+          <tr>
+            <td><div class="dept-name"><div class="dept-avatar" style="background:#FDF3E0">🎨</div> Design</div></td>
+            <td>18</td>
+            <td><span class="score-pill" style="background:#FDF3E0;color:#B8760A">● 58</span></td>
+            <td><div class="trend-bar"><div class="trend-fill" style="width:58%;background:#B8760A"></div></div></td>
+            <td><span class="change-badge" style="background:#FDF3E0;color:#B8760A">↓ -4%</span></td>
+            <td><span class="score-pill" style="background:#FDF3E0;color:#B8760A">Drifting</span></td>
+          </tr>
+          <tr>
+            <td><div class="dept-name"><div class="dept-avatar" style="background:#FDECEA">🎧</div> Support</div></td>
+            <td>39</td>
+            <td><span class="score-pill" style="background:#FDECEA;color:#C0392B">● 44</span></td>
+            <td><div class="trend-bar"><div class="trend-fill" style="width:44%;background:#C0392B"></div></div></td>
+            <td><span class="change-badge" style="background:#FDECEA;color:#C0392B">↓ -11%</span></td>
+            <td><span class="score-pill" style="background:#FDECEA;color:#C0392B">At Risk</span></td>
+          </tr>
+          <tr>
+            <td><div class="dept-name"><div class="dept-avatar" style="background:#F5EDD8">⚙️</div> Operations</div></td>
+            <td>27</td>
+            <td><span class="score-pill" style="background:#F5EDD8;color:#B8935A">● 67</span></td>
+            <td><div class="trend-bar"><div class="trend-fill" style="width:67%;background:#B8935A"></div></div></td>
+            <td><span class="change-badge" style="background:#F5EDD8;color:#B8935A">↑ +3%</span></td>
+            <td><span class="score-pill" style="background:#F5EDD8;color:#B8935A">Connected</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- BOTTOM ROW -->
+    <div class="bottom-row">
+
+      <!-- AI Insights -->
+      <div class="card" style="animation-delay:0.4s">
+        <div class="card-header">
+          <div>
+            <div class="card-title">AI Insights</div>
+            <div class="card-sub">Automatically generated · Updated weekly</div>
+          </div>
+          <span style="font-size:11px;color:var(--gold);font-weight:500;background:var(--gold-l);padding:3px 10px;border-radius:100px">✦ Pulse AI</span>
+        </div>
+        <div>
+          <div class="insight-item">
+            <div class="insight-dot" style="background:#C0392B"></div>
+            <div>
+              <div class="insight-text"><strong>Support team needs attention.</strong> Connection score dropped 11% in 30 days — likely linked to high ticket volume and remote-only structure.</div>
+              <div class="insight-time">Recommended action: Team social event or buddy pairing</div>
+            </div>
+          </div>
+          <div class="insight-item">
+            <div class="insight-dot" style="background:#2D7A5A"></div>
+            <div>
+              <div class="insight-text"><strong>Engineering's score jumped 12%</strong> after the in-person hackathon. In-person events show strongest impact on connection scores.</div>
+              <div class="insight-time">Consider replicating for other departments</div>
+            </div>
+          </div>
+          <div class="insight-item">
+            <div class="insight-dot" style="background:#B8760A"></div>
+            <div>
+              <div class="insight-text"><strong>Friday afternoons show lowest</strong> connection activity across all teams. Consider a lightweight end-of-week ritual.</div>
+              <div class="insight-time">Pattern detected over last 6 weeks</div>
+            </div>
+          </div>
+          <div class="insight-item">
+            <div class="insight-dot" style="background:#2D7A5A"></div>
+            <div>
+              <div class="insight-text"><strong>Overall company score up 8%</strong> since Pulse launched. Estimated productivity impact: +4.2% based on research correlations.</div>
+              <div class="insight-time">ROI positive after month 2</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROI Card -->
+      <div class="card" style="animation-delay:0.45s">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Wellness ROI</div>
+            <div class="card-sub">Estimated business impact of improved connection</div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div style="background:var(--bg);border-radius:10px;padding:16px">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">Cost of loneliness (est.)</div>
+            <div style="font-family:'Fraunces',serif;font-size:28px;color:var(--red);font-weight:300">$1.2M<span style="font-size:14px;color:var(--muted)">/yr</span></div>
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">Absenteeism + turnover + reduced productivity · 247 employees</div>
+          </div>
+
+          <div style="background:var(--green-l);border-radius:10px;padding:16px">
+            <div style="font-size:11px;color:var(--green);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">Pulse cost</div>
+            <div style="font-family:'Fraunces',serif;font-size:28px;color:var(--green);font-weight:300">$29.6K<span style="font-size:14px;color:var(--green);opacity:0.7">/yr</span></div>
+            <div style="font-size:11px;color:var(--green);margin-top:4px;opacity:0.8">$120/employee/yr · Enterprise plan</div>
+          </div>
+
+          <div style="background:linear-gradient(135deg,#F5EDD8,#FDF3E0);border-radius:10px;padding:16px;border:1px solid #E8D5B0">
+            <div style="font-size:11px;color:var(--gold);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">Estimated ROI</div>
+            <div style="font-family:'Fraunces',serif;font-size:32px;color:var(--gold);font-weight:300">40x</div>
+            <div style="font-size:11px;color:var(--amber);margin-top:4px">Every $1 spent on Pulse saves ~$40 in loneliness costs</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</main>
+
+<script>
+// Period selector
+document.querySelectorAll('.period-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+// Nav items
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+  });
+});
+
+// Tooltip on chart dots
+const tooltip = document.getElementById('tooltip');
+document.querySelectorAll('.chart-dot').forEach(dot => {
+  dot.addEventListener('mouseenter', e => {
+    const val  = dot.getAttribute('data-val');
+    const date = dot.getAttribute('data-date');
+    tooltip.textContent = `${date}: Score ${val}`;
+    tooltip.classList.add('visible');
+  });
+  dot.addEventListener('mousemove', e => {
+    tooltip.style.left = (e.pageX + 12) + 'px';
+    tooltip.style.top  = (e.pageY - 28) + 'px';
+  });
+  dot.addEventListener('mouseleave', () => tooltip.classList.remove('visible'));
+});
+
+// Animate bars on load
+window.addEventListener('load', () => {
+  document.querySelectorAll('.kpi-bar-fill').forEach(bar => {
+    const target = bar.style.width;
+    bar.style.width = '0%';
+    setTimeout(() => bar.style.width = target, 300);
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "Pulse",
+    "slug": "pulse-app",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./src/assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "backgroundColor": "#080A10"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "app.pulse.mobile",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Pulse uses your location to find nearby micro-events.",
+        "NSUserTrackingUsageDescription": "Pulse processes all data on-device. Nothing is tracked externally."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#080A10"
+      },
+      "package": "app.pulse.mobile",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE"
+      ]
+    },
+    "plugins": [
+      "expo-notifications",
+      "expo-background-fetch"
+    ]
+  }
+}
