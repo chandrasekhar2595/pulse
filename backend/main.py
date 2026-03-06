@@ -5,7 +5,7 @@ Backend: FastAPI + Claude AI + Firebase
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from api.routes import chat, nudges, signals, events
+from backend.api.routes import chat, nudges, signals, events
 import uvicorn
 
 app = FastAPI(
