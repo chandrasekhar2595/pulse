@@ -1,9 +1,7 @@
 [build]
   publish = "frontend"
-  command = "echo 'Static site - no build needed'"
+  command = "echo done"
   ignore = "exit 0"
 
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+[build.environment]
+  SKIP_INSTALL = "true"
