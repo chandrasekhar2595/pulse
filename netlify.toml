@@ -3,5 +3,5 @@
   command = "echo done"
   ignore = "exit 0"
 
-[build.environment]
-  SKIP_INSTALL = "true"
+[build.processing]
+  skip_processing = true
