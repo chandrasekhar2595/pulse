@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // ── Change this to your backend URL when deployed ──
-const BASE_URL = 'http://localhost:8000';
+const BASE_URL = 'https://pulse-production-c947.up.railway.app';
 
 const api = axios.create({
   baseURL: BASE_URL,
