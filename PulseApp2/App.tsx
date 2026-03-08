@@ -131,12 +131,18 @@ function HomeScreen({ name, onTab }: { name:string; onTab:(t:string)=>void }) {
   );
 }
 
-// ─── CHAT (fixed keyboard + send button) ─────────────────────────────────────
+// ─── CHAT (fixed & improved) ──────────────────────────────────────────────────
+// Tab bar height constants — must match the tab bar at the bottom of App
+const TAB_BAR_HEIGHT = Platform.OS === 'ios' ? 82 : 58;
+
 function ChatScreen() {
-  const [messages, setMessages] = useState([{id:1,role:'ai',text:"Hey 👋 I'm Pulse. I've been quietly watching your patterns. How are you feeling today?"}]);
+  const [messages, setMessages] = useState([
+    {id:1, role:'ai', text:"Hey 👋 I'm Pulse. I've been quietly watching your patterns. How are you feeling today?"}
+  ]);
   const [input, setInput] = useState('');
   const [typing, setTyping] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
+
   const replies = [
     "I hear you. Is there someone specific you've been thinking about reaching out to?",
     "Your connection score has been stable this week — that's actually a good sign.",
@@ -144,62 +150,164 @@ function ChatScreen() {
     "You don't have to have something important to say. Sometimes 'thinking of you' is enough.",
     "What's one small connection you could make today? Doesn't have to be big.",
   ];
+
   function send() {
-    if (!input.trim()) return;
-    setMessages(m=>[...m,{id:Date.now(),role:'user',text:input.trim()}]);
-    setInput(''); setTyping(true);
-    setTimeout(()=>{
-      setMessages(m=>[...m,{id:Date.now()+1,role:'ai',text:replies[Math.floor(Math.random()*replies.length)]}]);
+    const text = input.trim();
+    if (!text) return;
+    setMessages(m => [...m, {id: Date.now(), role:'user', text}]);
+    setInput('');
+    setTyping(true);
+    setTimeout(() => {
+      setMessages(m => [...m, {
+        id: Date.now() + 1,
+        role:'ai',
+        text: replies[Math.floor(Math.random() * replies.length)]
+      }]);
       setTyping(false);
-    },1200);
+    }, 1200);
   }
+
   return (
-    <View style={{flex:1,backgroundColor:C.bg}}>
-      <SafeAreaView style={{backgroundColor:C.bg}}>
-        <View style={{padding:20,paddingBottom:14,borderBottomWidth:1,borderColor:C.border}}>
-          <Text style={{fontSize:20,fontWeight:'700',color:C.text}}>🫀 Pulse AI</Text>
-          <Text style={{fontSize:13,color:C.green,marginTop:2}}>● Online · Here for you</Text>
+    <View style={{flex:1, backgroundColor:C.bg, paddingBottom: TAB_BAR_HEIGHT}}>
+      <SafeAreaView style={{flex:1, backgroundColor:C.bg}}>
+        {/* Header */}
+        <View style={{
+          paddingHorizontal:20, paddingVertical:14,
+          borderBottomWidth:1, borderColor:C.border,
+          backgroundColor:C.bg,
+        }}>
+          <Text style={{fontSize:20, fontWeight:'700', color:C.text}}>🫀 Pulse AI</Text>
+          <Text style={{fontSize:13, color:C.green, marginTop:2}}>● Online · Here for you</Text>
         </View>
+
+        {/* Messages + Input in KeyboardAvoidingView */}
+        <KeyboardAvoidingView
+          style={{flex:1}}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+        >
+          {/* Messages list */}
+          <ScrollView
+            ref={scrollRef}
+            style={{flex:1}}
+            contentContainerStyle={{padding:16, paddingBottom:8}}
+            keyboardDismissMode="interactive"
+            onContentSizeChange={() => scrollRef.current?.scrollToEnd({animated:true})}
+            showsVerticalScrollIndicator={false}
+          >
+            {messages.map(m => (
+              <View key={m.id} style={{
+                flexDirection:'row',
+                justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start',
+                marginBottom:12,
+              }}>
+                {m.role === 'ai' && (
+                  <View style={{
+                    width:32, height:32, borderRadius:16,
+                    backgroundColor:C.card, borderWidth:1, borderColor:C.gold,
+                    alignItems:'center', justifyContent:'center',
+                    marginRight:8, marginTop:2,
+                  }}>
+                    <Text style={{fontSize:14}}>🫀</Text>
+                  </View>
+                )}
+                <View style={{
+                  maxWidth:'75%',
+                  paddingHorizontal:14, paddingVertical:12,
+                  borderRadius:20,
+                  backgroundColor: m.role === 'user' ? C.gold : C.card,
+                  borderBottomRightRadius: m.role === 'user' ? 4 : 20,
+                  borderBottomLeftRadius: m.role === 'ai' ? 4 : 20,
+                  borderWidth: m.role === 'ai' ? 1 : 0,
+                  borderColor: C.border,
+                }}>
+                  <Text style={{
+                    fontSize:15,
+                    color: m.role === 'user' ? '#000' : C.text,
+                    lineHeight:22,
+                  }}>{m.text}</Text>
+                </View>
+              </View>
+            ))}
+
+            {typing && (
+              <View style={{flexDirection:'row', marginBottom:12, alignItems:'center'}}>
+                <View style={{
+                  width:32, height:32, borderRadius:16,
+                  backgroundColor:C.card, borderWidth:1, borderColor:C.gold,
+                  alignItems:'center', justifyContent:'center',
+                  marginRight:8,
+                }}>
+                  <Text style={{fontSize:14}}>🫀</Text>
+                </View>
+                <View style={{
+                  backgroundColor:C.card, paddingHorizontal:16, paddingVertical:12,
+                  borderRadius:20, borderBottomLeftRadius:4,
+                  borderWidth:1, borderColor:C.border,
+                }}>
+                  <Text style={{color:C.sub, fontSize:20, letterSpacing:2}}>···</Text>
+                </View>
+              </View>
+            )}
+          </ScrollView>
+
+          {/* ── INPUT BAR — always visible above tab bar ── */}
+          <View style={{
+            flexDirection:'row',
+            alignItems:'flex-end',
+            paddingHorizontal:12,
+            paddingTop:10,
+            paddingBottom:12,
+            borderTopWidth:1,
+            borderColor:C.border,
+            backgroundColor:C.bg,
+          }}>
+            <TextInput
+              style={{
+                flex:1,
+                minHeight:46,
+                maxHeight:120,
+                backgroundColor:C.card,
+                borderRadius:23,
+                paddingHorizontal:18,
+                paddingTop:12,
+                paddingBottom:12,
+                fontSize:15,
+                color:C.text,
+                borderWidth:1,
+                borderColor: input.trim() ? C.gold : C.border,
+                marginRight:10,
+              }}
+              placeholder="Talk to Pulse..."
+              placeholderTextColor={C.dim}
+              value={input}
+              onChangeText={setInput}
+              multiline
+              returnKeyType="default"
+              blurOnSubmit={false}
+            />
+            <TouchableOpacity
+              onPress={send}
+              activeOpacity={0.8}
+              style={{
+                width:46,
+                height:46,
+                borderRadius:23,
+                backgroundColor: input.trim() ? C.gold : C.border,
+                alignItems:'center',
+                justifyContent:'center',
+              }}
+            >
+              <Text style={{
+                fontSize:20,
+                color: input.trim() ? '#000' : C.dim,
+                fontWeight:'700',
+                lineHeight:22,
+              }}>↑</Text>
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
       </SafeAreaView>
-      <KeyboardAvoidingView style={{flex:1}} behavior={Platform.OS==='ios'?'padding':'height'}>
-        <ScrollView ref={scrollRef} style={{flex:1,padding:16}}
-          contentContainerStyle={{paddingBottom:8}}
-          onContentSizeChange={()=>scrollRef.current?.scrollToEnd({animated:true})}
-          keyboardDismissMode="interactive">
-          {messages.map(m=>(
-            <View key={m.id} style={{flexDirection:'row',justifyContent:m.role==='user'?'flex-end':'flex-start',marginBottom:12}}>
-              <View style={{maxWidth:'80%',padding:14,borderRadius:18,backgroundColor:m.role==='user'?C.gold:C.card,
-                borderBottomRightRadius:m.role==='user'?4:18,borderBottomLeftRadius:m.role==='ai'?4:18}}>
-                <Text style={{fontSize:15,color:m.role==='user'?'#000':C.text,lineHeight:22}}>{m.text}</Text>
-              </View>
-            </View>
-          ))}
-          {typing&&(
-            <View style={{flexDirection:'row',marginBottom:12}}>
-              <View style={{backgroundColor:C.card,padding:14,borderRadius:18,borderBottomLeftRadius:4}}>
-                <Text style={{color:C.sub,fontSize:18}}>···</Text>
-              </View>
-            </View>
-          )}
-        </ScrollView>
-        {/* INPUT BAR - stays above keyboard */}
-        <View style={{flexDirection:'row',alignItems:'flex-end',paddingHorizontal:12,paddingVertical:10,
-          borderTopWidth:1,borderColor:C.border,backgroundColor:C.bg}}>
-          <TextInput
-            style={{flex:1,backgroundColor:C.card,borderRadius:22,paddingHorizontal:16,paddingTop:10,
-              paddingBottom:10,fontSize:15,color:C.text,marginRight:8,maxHeight:120,
-              borderWidth:1,borderColor:C.border}}
-            placeholder="Talk to Pulse..." placeholderTextColor={C.dim}
-            value={input} onChangeText={setInput} multiline
-          />
-          <TouchableOpacity onPress={send}
-            style={{width:46,height:46,borderRadius:23,backgroundColor:input.trim()?C.gold:C.dim,
-              alignItems:'center',justifyContent:'center'}}>
-            <Text style={{fontSize:22,color:'#000'}}>↑</Text>
-          </TouchableOpacity>
-        </View>
-        <SafeAreaView style={{backgroundColor:C.bg}}/>
-      </KeyboardAvoidingView>
     </View>
   );
 }
@@ -370,7 +478,6 @@ function AuthScreen({ onAuth }: { onAuth: (name: string, email: string) => void 
   },[]);
 
   function handleSocialAuth(provider: string) {
-    // Simulate social auth — in production connect to Firebase/Supabase
     const mockName = provider === 'Apple' ? 'Apple User' : 'Google User';
     const mockEmail = provider === 'Apple' ? 'user@icloud.com' : 'user@gmail.com';
     onAuth(mockName, mockEmail);
@@ -392,9 +499,8 @@ function AuthScreen({ onAuth }: { onAuth: (name: string, email: string) => void 
         <Text style={{fontSize:40,fontWeight:'800',color:C.text,marginBottom:8}}>Pulse</Text>
         <Text style={{fontSize:17,color:C.sub,textAlign:'center',lineHeight:26,marginBottom:60}}>{"The ambient loneliness detector.\nBuilt to notice when you're drifting."}</Text>
 
-        {/* Social Auth Buttons */}
         <TouchableOpacity onPress={()=>handleSocialAuth('Apple')} style={{width:'100%',backgroundColor:'#FFFFFF',borderRadius:14,paddingVertical:15,flexDirection:'row',alignItems:'center',justifyContent:'center',marginBottom:12}}>
-          <Text style={{fontSize:20,marginRight:8,color:'#000',fontWeight:'500'}}></Text>
+          <Text style={{fontSize:20,marginRight:8,color:'#000',fontWeight:'500'}}></Text>
           <Text style={{fontSize:16,fontWeight:'600',color:'#000'}}>Continue with Apple</Text>
         </TouchableOpacity>
 
@@ -408,7 +514,6 @@ function AuthScreen({ onAuth }: { onAuth: (name: string, email: string) => void 
           <Text style={{fontSize:16,fontWeight:'600',color:C.text}}>Continue with Google</Text>
         </TouchableOpacity>
 
-        {/* Divider */}
         <View style={{flexDirection:'row',alignItems:'center',width:'100%',marginBottom:24}}>
           <View style={{flex:1,height:1,backgroundColor:C.border}}/>
           <Text style={{color:C.dim,paddingHorizontal:12,fontSize:13}}>or</Text>
@@ -481,7 +586,6 @@ function ProfileScreen({ name, email, onLogout }: { name:string; email:string; o
       <ScrollView contentContainerStyle={{padding:20,paddingBottom:120}}>
         <Text style={{fontSize:24,fontWeight:'700',color:C.text,marginBottom:24}}>Profile</Text>
 
-        {/* Avatar */}
         <View style={{alignItems:'center',marginBottom:28}}>
           <View style={{width:80,height:80,borderRadius:40,backgroundColor:C.gold,alignItems:'center',justifyContent:'center',marginBottom:12}}>
             <Text style={{fontSize:30,fontWeight:'800',color:'#000'}}>{initials}</Text>
@@ -490,7 +594,6 @@ function ProfileScreen({ name, email, onLogout }: { name:string; email:string; o
           <Text style={{fontSize:14,color:C.sub,marginTop:4}}>{email}</Text>
         </View>
 
-        {/* Stats */}
         <View style={{flexDirection:'row',gap:12,marginBottom:24}}>
           {[{label:'Days Active',value:'7'},{label:'Nudges Taken',value:'12'},{label:'Avg Score',value:'68%'}].map((s,i)=>(
             <View key={i} style={{flex:1,backgroundColor:C.card,borderRadius:14,padding:14,alignItems:'center',borderWidth:1,borderColor:C.border}}>
@@ -500,7 +603,6 @@ function ProfileScreen({ name, email, onLogout }: { name:string; email:string; o
           ))}
         </View>
 
-        {/* Settings */}
         <Text style={{fontSize:13,color:C.dim,fontWeight:'700',letterSpacing:1,marginBottom:12}}>SETTINGS</Text>
 
         <View style={{backgroundColor:C.card,borderRadius:16,borderWidth:1,borderColor:C.border,marginBottom:16}}>
@@ -520,7 +622,6 @@ function ProfileScreen({ name, email, onLogout }: { name:string; email:string; o
           ))}
         </View>
 
-        {/* Links */}
         <View style={{backgroundColor:C.card,borderRadius:16,borderWidth:1,borderColor:C.border,marginBottom:24}}>
           {['Privacy Policy','Terms of Service','About Pulse'].map((item,i,arr)=>(
             <TouchableOpacity key={item} style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',padding:16,borderBottomWidth:i<arr.length-1?1:0,borderColor:C.border}}>
@@ -530,7 +631,6 @@ function ProfileScreen({ name, email, onLogout }: { name:string; email:string; o
           ))}
         </View>
 
-        {/* Logout */}
         {!showLogoutConfirm ? (
           <TouchableOpacity onPress={()=>setShowLogoutConfirm(true)} style={{backgroundColor:C.card,borderRadius:14,paddingVertical:16,alignItems:'center',borderWidth:1,borderColor:C.red}}>
             <Text style={{color:C.red,fontSize:16,fontWeight:'600'}}>Sign Out</Text>
@@ -562,9 +662,7 @@ export default function App() {
   const [onboarded, setOnboarded] = useState(false);
   const [activeTab, setActiveTab] = useState('Home');
 
-  // Show auth first
   if (!user) return <AuthScreen onAuth={(name,email)=>{ setUser({name,email}); }}/>;
-  // Then onboarding
   if (!onboarded) return <OnboardingScreen onDone={()=>setOnboarded(true)}/>;
 
   return (
