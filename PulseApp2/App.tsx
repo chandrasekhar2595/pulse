@@ -5,7 +5,7 @@ import {
   Dimensions, PanResponder
 } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
-import { AntDesign, FontAwesome } from '@expo/vector-icons';
+import Svg, { Path, G } from 'react-native-svg';
 
 const C = {
   bg:'#080A10', card:'#12151F', border:'#1E2235', gold:'#B8935A',
@@ -556,12 +556,22 @@ function AuthScreen({ onAuth }: { onAuth: (name: string, email: string) => void 
         <Text style={{fontSize:17,color:C.sub,textAlign:'center',lineHeight:26,marginBottom:60}}>{"The ambient loneliness detector.\nBuilt to notice when you're drifting."}</Text>
 
         <TouchableOpacity onPress={()=>handleSocialAuth('Apple')} style={{width:'100%',backgroundColor:'#FFFFFF',borderRadius:14,paddingVertical:15,flexDirection:'row',alignItems:'center',justifyContent:'center',marginBottom:12}}>
-          <AntDesign name="apple1" size={20} color="#000" style={{marginRight:10}}/>
+          {/* Apple SVG logo */}
+          <Svg width="20" height="20" viewBox="0 0 814 1000" style={{marginRight:10}}>
+            <Path fill="#000" d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-57.8-155.5-127.4C46 376.7 0 226.3 0 184.5c0-209.5 173.4-321.4 344.8-321.4 89.7 0 164.5 50.4 218.9 50.4 52.2 0 136.4-53.4 239-53.4zM545.5 0c3.5 26.7-7.8 53.4-24.6 73-16.8 19.6-44.4 34.8-71.1 34.8-3.5 0-7-.3-10.4-.7 3.5-24.8 16-50.3 32.8-68.8C489.8 19.1 519.3 5.4 545.5 0z"/>
+          </Svg>
           <Text style={{fontSize:16,fontWeight:'600',color:'#000'}}>Continue with Apple</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={()=>handleSocialAuth('Google')} style={{width:'100%',backgroundColor:C.card,borderRadius:14,paddingVertical:15,flexDirection:'row',alignItems:'center',justifyContent:'center',borderWidth:1,borderColor:C.border,marginBottom:24}}>
-          <AntDesign name="google" size={20} color="#EA4335" style={{marginRight:10}}/>
+          {/* Google SVG logo — official multicolor G */}
+          <Svg width="20" height="20" viewBox="0 0 48 48" style={{marginRight:10}}>
+            <Path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+            <Path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+            <Path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+            <Path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+            <Path fill="none" d="M0 0h48v48H0z"/>
+          </Svg>
           <Text style={{fontSize:16,fontWeight:'600',color:C.text}}>Continue with Google</Text>
         </TouchableOpacity>
 
