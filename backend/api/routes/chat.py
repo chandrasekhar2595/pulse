@@ -1,9 +1,3 @@
-"""
-AI Companion Chat Route
-Uses Claude API for empathetic, warm conversations.
-Detects crisis signals and gently bridges toward real humans.
-"""
-
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
@@ -11,86 +5,101 @@ import anthropic
 import os
 
 router = APIRouter()
-client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
-SYSTEM_PROMPT = """You are Pulse — a warm, grounded AI companion for everyday people feeling lonely or overwhelmed.
+PULSE_SYSTEM_PROMPT = """You are Pulse AI — a warm, empathetic companion built into the Pulse app, 
+an ambient loneliness detector that nudges people toward real human connection.
 
 Your personality:
-- Genuinely warm, never clinical or robotic
-- You listen MORE than you talk
-- You ask ONE question at a time, not a list
-- You notice emotional subtext and gently name it
-- You never push therapy unless someone is in crisis
-- You celebrate small wins ("you texted a friend today — that matters")
+- Warm, calm, and genuinely caring — like a wise friend, not a therapist
+- You notice patterns and gently reflect them back
+- You always nudge toward REAL human connection, never toward more app usage
+- You are a bridge, not a destination
+- You speak in short, human sentences — no bullet points, no clinical language
+- You never diagnose or give medical advice
+- You ask one thoughtful question at a time
 
-Your core mission:
-- Hold space when someone needs it at 2am
-- Gently, naturally nudge users toward REAL human connection
-- Never foster dependency on yourself — you're a bridge, not a destination
+Your north star: "We win when people put us down because they're talking to their friends."
 
-Crisis detection:
-- If someone expresses suicidal thoughts, self-harm, or acute crisis:
-  → Acknowledge with full warmth, don't panic
-  → Provide crisis line (988 Suicide & Crisis Lifeline)
-  → Stay present with them
+If someone seems in crisis, gently encourage them to reach out to a trusted person or 
+call/text 988 (Suicide & Crisis Lifeline).
 
-Rules:
-- Keep responses SHORT (2-4 sentences usually)
-- Never give unsolicited advice
-- Never use therapy-speak or buzzwords like "validate" or "unpack"
-- Be a real friend, not a chatbot
-"""
+Keep responses short — 2-4 sentences max unless the person clearly wants more.
+Always end with either a warm statement or a single gentle question."""
+
 
 class Message(BaseModel):
-    role: str  # "user" or "assistant"
+    role: str  # 'user' or 'assistant'
     content: str
+
 
 class ChatRequest(BaseModel):
     messages: List[Message]
-    user_id: str
-    isolation_score: Optional[float] = None  # 0-1, from signal engine
+    isolation_score: Optional[float] = None  # 0.0 to 1.0
+
 
 class ChatResponse(BaseModel):
-    reply: str
-    nudge_triggered: bool = False
-    nudge_action: Optional[str] = None
-    crisis_detected: bool = False
+    message: str
+    nudge: Optional[str] = None
 
-@router.post("/", response_model=ChatResponse)
-async def chat(req: ChatRequest):
+
+@router.post("/chat", response_model=ChatResponse)
+async def chat(request: ChatRequest):
     try:
         # Build context from isolation score if available
-        system = SYSTEM_PROMPT
-        if req.isolation_score and req.isolation_score > 0.7:
-            system += f"\n\nContext: This user's passive signals suggest high isolation right now (score: {req.isolation_score:.2f}). Be especially warm and present."
+        system = PULSE_SYSTEM_PROMPT
+        if request.isolation_score is not None:
+            score_pct = int(request.isolation_score * 100)
+            if request.isolation_score > 0.65:
+                system += f"\n\nContext: This user's isolation score is {score_pct}% — they are showing signs of significant isolation. Be extra warm and gently encourage them to reach out to someone specific."
+            elif request.isolation_score > 0.4:
+                system += f"\n\nContext: This user's isolation score is {score_pct}% — they are drifting a little. A gentle nudge toward connection would help."
+            else:
+                system += f"\n\nContext: This user's isolation score is {score_pct}% — they are fairly connected. Reinforce positive patterns."
+
+        # Convert messages to Anthropic format
+        anthropic_messages = [
+            {"role": msg.role if msg.role == "user" else "assistant", "content": msg.content}
+            for msg in request.messages
+        ]
 
         response = client.messages.create(
             model="claude-sonnet-4-20250514",
             max_tokens=300,
             system=system,
-            messages=[{"role": m.role, "content": m.content} for m in req.messages]
+            messages=anthropic_messages,
         )
 
         reply = response.content[0].text
 
-        # Simple crisis keyword detection
-        crisis_keywords = ["kill myself", "end it", "don't want to be here", "suicide", "self-harm"]
-        crisis_detected = any(kw in req.messages[-1].content.lower() for kw in crisis_keywords)
+        # Generate a nudge if isolation score is elevated
+        nudge = None
+        if request.isolation_score and request.isolation_score > 0.4:
+            nudge = await generate_nudge(request.isolation_score)
 
-        # Nudge trigger: if conversation is positive and user mentioned a person
-        nudge_triggered = False
-        nudge_action = None
-        last_msg = req.messages[-1].content.lower()
-        if any(word in last_msg for word in ["miss", "friend", "haven't talked", "used to"]):
-            nudge_triggered = True
-            nudge_action = "suggest_reach_out"
+        return ChatResponse(message=reply, nudge=nudge)
 
-        return ChatResponse(
-            reply=reply,
-            nudge_triggered=nudge_triggered,
-            nudge_action=nudge_action,
-            crisis_detected=crisis_detected
-        )
-
+    except anthropic.AuthenticationError:
+        raise HTTPException(status_code=401, detail="Invalid API key")
+    except anthropic.RateLimitError:
+        raise HTTPException(status_code=429, detail="Rate limit exceeded")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+async def generate_nudge(isolation_score: float) -> str:
+    """Generate a personalized micro-nudge based on isolation score."""
+    try:
+        prompt = f"""The user has an isolation score of {int(isolation_score * 100)}%.
+Generate ONE very short, specific, warm micro-nudge to encourage real human connection.
+Examples: "Text someone you haven't spoken to in a while — even just 'thinking of you' counts."
+Keep it under 20 words. Make it feel personal, not generic."""
+
+        response = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=60,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        return response.content[0].text.strip()
+    except Exception:
+        return None
