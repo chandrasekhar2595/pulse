@@ -28,10 +28,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(chat.router,    prefix="/api/chat",    tags=["AI Companion"])
-app.include_router(nudges.router,  prefix="/api/nudges",  tags=["Nudge Engine"])
-app.include_router(signals.router, prefix="/api/signals", tags=["Signal Ingestion"])
-app.include_router(events.router,  prefix="/api/events",  tags=["Micro Events"])
+# Fix: prefix is /api only — each router defines its own sub-path
+app.include_router(chat.router,    prefix="/api", tags=["AI Companion"])
+app.include_router(nudges.router,  prefix="/api", tags=["Nudge Engine"])
+app.include_router(signals.router, prefix="/api", tags=["Signal Ingestion"])
+app.include_router(events.router,  prefix="/api", tags=["Micro Events"])
+
+@app.get("/")
+def root():
+    return {"status": "Pulse API is running 🫀"}
 
 @app.get("/health")
 def health():
