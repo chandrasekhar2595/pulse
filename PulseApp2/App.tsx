@@ -5,6 +5,7 @@ import {
   Dimensions, PanResponder
 } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
+import { AntDesign, FontAwesome } from '@expo/vector-icons';
 
 const C = {
   bg:'#080A10', card:'#12151F', border:'#1E2235', gold:'#B8935A',
@@ -134,7 +135,7 @@ function HomeScreen({ name, onTab }: { name:string; onTab:(t:string)=>void }) {
 
 // ─── CHAT (connected to real Claude API) ─────────────────────────────────────
 const TAB_BAR_HEIGHT = Platform.OS === 'ios' ? 82 : 58;
-const API_BASE = 'https://pulse-production-c947.up.railway.app/'; // 🔁 Replace with your Railway URL
+const API_BASE = 'https://pulse-production-c947.up.railway.app';
 
 function ChatScreen() {
   const [messages, setMessages] = useState([
@@ -555,17 +556,12 @@ function AuthScreen({ onAuth }: { onAuth: (name: string, email: string) => void 
         <Text style={{fontSize:17,color:C.sub,textAlign:'center',lineHeight:26,marginBottom:60}}>{"The ambient loneliness detector.\nBuilt to notice when you're drifting."}</Text>
 
         <TouchableOpacity onPress={()=>handleSocialAuth('Apple')} style={{width:'100%',backgroundColor:'#FFFFFF',borderRadius:14,paddingVertical:15,flexDirection:'row',alignItems:'center',justifyContent:'center',marginBottom:12}}>
-          <Text style={{fontSize:20,marginRight:8,color:'#000',fontWeight:'500'}}></Text>
+          <AntDesign name="apple1" size={20} color="#000" style={{marginRight:10}}/>
           <Text style={{fontSize:16,fontWeight:'600',color:'#000'}}>Continue with Apple</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={()=>handleSocialAuth('Google')} style={{width:'100%',backgroundColor:C.card,borderRadius:14,paddingVertical:15,flexDirection:'row',alignItems:'center',justifyContent:'center',borderWidth:1,borderColor:C.border,marginBottom:24}}>
-          <View style={{width:22,height:22,borderRadius:2,marginRight:10,overflow:'hidden',flexDirection:'row',flexWrap:'wrap'}}>
-            <View style={{width:11,height:11,backgroundColor:'#4285F4'}}/>
-            <View style={{width:11,height:11,backgroundColor:'#EA4335'}}/>
-            <View style={{width:11,height:11,backgroundColor:'#34A853'}}/>
-            <View style={{width:11,height:11,backgroundColor:'#FBBC05'}}/>
-          </View>
+          <AntDesign name="google" size={20} color="#EA4335" style={{marginRight:10}}/>
           <Text style={{fontSize:16,fontWeight:'600',color:C.text}}>Continue with Google</Text>
         </TouchableOpacity>
 
